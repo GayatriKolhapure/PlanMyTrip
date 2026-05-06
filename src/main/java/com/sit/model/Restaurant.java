@@ -1,5 +1,8 @@
 package com.sit.model;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sit.enums.RestaurantType;
 
 import jakarta.persistence.Column;
@@ -9,6 +12,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +31,7 @@ public class Restaurant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long restaurant_id;
+    private Long id;
 
     // Basic Info
     @Column(nullable = false)
@@ -71,5 +77,11 @@ public class Restaurant {
     private boolean isVegOnly;
 
     // Optional: Link to Destination
-    private Long destinationId;
+    @ManyToOne
+    @JoinColumn(name = "destination_id")
+    private Destination destination;
+    
+    @ManyToMany(mappedBy = "restaurants")
+    @JsonIgnore
+    private List<TripPlanning> trips;
 }

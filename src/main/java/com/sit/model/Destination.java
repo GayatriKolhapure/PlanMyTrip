@@ -1,5 +1,4 @@
 package com.sit.model;
-
 import com.sit.enums.DestinationType;
 
 import jakarta.persistence.Column;
@@ -25,14 +24,14 @@ public class Destination {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long destination_id;
+    private Long id;
 
     @Column(nullable = false)
     private String name;
 
     // Example: BEACH, HILL, CITY, ADVENTURE
     @Enumerated(EnumType.STRING)
-    private DestinationType type;;
+    private DestinationType type;
 
     @Column(length = 1000)
     private String description;

@@ -3,6 +3,7 @@ package com.sit.model;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sit.enums.TripStatus;
 
 import jakarta.persistence.Column;
@@ -29,55 +30,54 @@ import lombok.NoArgsConstructor;
 @Builder
 public class TripPlanning {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long trip_id;
+	 @Id
+	    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	    private Long id;
 
-    // 🔗 User who created the trip
-    private Long userId; // (You can convert to @ManyToOne later)
+	    private Long userId;
 
-    // Basic Info
-    @Column(nullable = false)
-    private String tripName;
+	    private String tripName;
 
-    private String description;
+	    private String description;
 
-    // Travel dates
-    private LocalDate startDate;
-    private LocalDate endDate;
+	    private LocalDate startDate;
+	    private LocalDate endDate;
 
-    // Budget reference
-    private double totalBudget;
+	    private double totalBudget;
 
-    // Trip status (PLANNED, COMPLETED, CANCELLED)
-    @Enumerated(EnumType.STRING)
-    private TripStatus status;
+	    @Enumerated(EnumType.STRING)
+	    private TripStatus status;
 
-    // 🌍 Destinations included in trip
-    @ManyToMany
-    @JoinTable(
-        name = "trip_destinations",
-        joinColumns = @JoinColumn(name = "trip_id"),
-        inverseJoinColumns = @JoinColumn(name = "destination_id")
-    )
-    private List<Destination> destinations;
+	    // 🌍 DESTINATIONS
+	    @ManyToMany
+	    @JoinTable(
+	        name = "trip_destinations",
+	        joinColumns = @JoinColumn(name = "trip_id"),
+	        inverseJoinColumns = @JoinColumn(name = "destination_id")
+	    )
+	    private List<Destination> destinations;
 
-    // 🍽️ Restaurants selected
-    @ManyToMany
-    @JoinTable(
-        name = "trip_restaurants",
-        joinColumns = @JoinColumn(name = "trip_id"),
-        inverseJoinColumns = @JoinColumn(name = "restaurant_id")
-    )
-    private List<Restaurant> restaurants;
+	    // 🍽️ ADD HERE (RESTAURANTS)
+	    @ManyToMany
+	    @JoinTable(
+	        name = "trip_restaurants",
+	        joinColumns = @JoinColumn(name = "trip_id"),
+	        inverseJoinColumns = @JoinColumn(name = "restaurant_id")
+	    )
+	    private List<Restaurant> restaurants;
 
-    // 🏨 (Optional future) Hotels
-    // private List<Hotel> hotels;
+	    // 🏨 ADD HERE (HOTELS)
+	    @ManyToMany
+	    @JoinTable(
+	        name = "trip_hotels",
+	        joinColumns = @JoinColumn(name = "trip_id"),
+	        inverseJoinColumns = @JoinColumn(name = "hotel_id")
+	    )
+	    private List<Hotel> hotels;
 
-    // 📅 Day-wise planning (simple version)
-    @Column(length = 2000)
-    private String planDetails;
+	    // 📅 PLAN
+	    @Column(length = 2000)
+	    private String planDetails;
 
-    // Metadata
-    private LocalDate createdDate;
-}
+	    private LocalDate createdDate;
+	    }
