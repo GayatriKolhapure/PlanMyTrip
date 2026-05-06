@@ -6,17 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sit.enums.TripStatus;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,54 +20,59 @@ import lombok.NoArgsConstructor;
 @Builder
 public class TripPlanning {
 
-	 @Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    private Long id;
+    // 🔥 PRIMARY KEY (VERY IMPORTANT)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long tripId;
 
-	    private Long userId;
+    // 🔗 USER RELATION
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties("trips")
+    private User user;
 
-	    private String tripName;
+    // BASIC INFO
+    private String tripName;
+    private String description;
 
-	    private String description;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
-	    private LocalDate startDate;
-	    private LocalDate endDate;
+    private double totalBudget;
 
-	    private double totalBudget;
+    @Enumerated(EnumType.STRING)
+    private TripStatus status;
 
-	    @Enumerated(EnumType.STRING)
-	    private TripStatus status;
+    // 🌍 DESTINATIONS
+    @ManyToMany
+    @JoinTable(
+        name = "trip_destinations",
+        joinColumns = @JoinColumn(name = "trip_id"),
+        inverseJoinColumns = @JoinColumn(name = "destination_id")
+    )
+    private List<Destination> destinations;
 
-	    // 🌍 DESTINATIONS
-	    @ManyToMany
-	    @JoinTable(
-	        name = "trip_destinations",
-	        joinColumns = @JoinColumn(name = "trip_id"),
-	        inverseJoinColumns = @JoinColumn(name = "destination_id")
-	    )
-	    private List<Destination> destinations;
+    // 🍽️ RESTAURANTS
+    @ManyToMany
+    @JoinTable(
+        name = "trip_restaurants",
+        joinColumns = @JoinColumn(name = "trip_id"),
+        inverseJoinColumns = @JoinColumn(name = "restaurant_id")
+    )
+    private List<Restaurant> restaurants;
 
-	    // 🍽️ ADD HERE (RESTAURANTS)
-	    @ManyToMany
-	    @JoinTable(
-	        name = "trip_restaurants",
-	        joinColumns = @JoinColumn(name = "trip_id"),
-	        inverseJoinColumns = @JoinColumn(name = "restaurant_id")
-	    )
-	    private List<Restaurant> restaurants;
+    // 🏨 HOTELS
+    @ManyToMany
+    @JoinTable(
+        name = "trip_hotels",
+        joinColumns = @JoinColumn(name = "trip_id"),
+        inverseJoinColumns = @JoinColumn(name = "hotel_id")
+    )
+    private List<Hotel> hotels;
 
-	    // 🏨 ADD HERE (HOTELS)
-	    @ManyToMany
-	    @JoinTable(
-	        name = "trip_hotels",
-	        joinColumns = @JoinColumn(name = "trip_id"),
-	        inverseJoinColumns = @JoinColumn(name = "hotel_id")
-	    )
-	    private List<Hotel> hotels;
+    // 📅 PLAN DETAILS (JSON STRING)
+    @Column(length = 2000)
+    private String planDetails;
 
-	    // 📅 PLAN
-	    @Column(length = 2000)
-	    private String planDetails;
-
-	    private LocalDate createdDate;
-	    }
+    private LocalDate createdDate;
+}

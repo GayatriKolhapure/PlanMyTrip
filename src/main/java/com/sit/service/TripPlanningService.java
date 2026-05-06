@@ -8,7 +8,6 @@ import com.sit.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.awt.JobAttributes.DestinationType;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -28,9 +27,16 @@ public class TripPlanningService {
     private TripRepository tripRepo;
 
     @Autowired
+    private UserRepository userRepository; // ✅ ADD THIS
+
+    @Autowired
     private ObjectMapper objectMapper;
-    
+
     public Map<String, Object> planTrip(TripRequestDTO request) {
+
+        // 🔥 0. GET USER
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         // 1. GET DESTINATIONS
         List<Destination> places =
@@ -61,27 +67,25 @@ public class TripPlanningService {
             Map<String, Object> dayPlan = new HashMap<>();
             dayPlan.put("day", day);
 
-            // ---- places (2 per day safe)
+            // ---- places
             List<String> dayPlaces = new ArrayList<>();
 
             for (int i = 0; i < 2; i++) {
-                if (!places.isEmpty()) {
-                    Destination d = places.get(placeIndex % places.size());
-                    dayPlaces.add(d.getName());
-                    placeIndex++;
-                }
+                Destination d = places.get(placeIndex % places.size());
+                dayPlaces.add(d.getName());
+                placeIndex++;
             }
 
             dayPlan.put("places", dayPlaces);
 
-            // ---- hotel object
+            // ---- hotel
             if (!hotels.isEmpty()) {
                 Map<String, Object> hotelObj = new HashMap<>();
                 hotelObj.put("name", hotels.get(day % hotels.size()).getName());
                 dayPlan.put("hotel", hotelObj);
             }
 
-            // ---- restaurant object
+            // ---- restaurant
             if (!restaurants.isEmpty()) {
                 Map<String, Object> restaurantObj = new HashMap<>();
                 restaurantObj.put("name", restaurants.get(day % restaurants.size()).getName());
@@ -91,8 +95,10 @@ public class TripPlanningService {
             plan.add(dayPlan);
         }
 
-        // 5. SAVE TRIP (FIXED JSON STORAGE)
+        // 5. SAVE TRIP
         TripPlanning trip = new TripPlanning();
+
+        trip.setUser(user); // 🔥 MOST IMPORTANT
         trip.setTripName(request.getLocation() + " Trip");
         trip.setCreatedDate(LocalDate.now());
         trip.setDestinations(places);
@@ -109,7 +115,7 @@ public class TripPlanningService {
 
         // 6. RESPONSE
         Map<String, Object> response = new HashMap<>();
-        response.put("tripId", trip.getId());
+        response.put("tripId", trip.getTripId());
         response.put("location", request.getLocation());
         response.put("days", request.getDays());
         response.put("plan", plan);
