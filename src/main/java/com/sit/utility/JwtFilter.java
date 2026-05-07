@@ -32,8 +32,6 @@ public class JwtFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
-    	
-    	
 
         try {
 
@@ -42,19 +40,19 @@ public class JwtFilter extends OncePerRequestFilter {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
                 String token = authHeader.substring(7);
+
                 String email = jwtUtil.extractEmail(token);
 
                 if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
                     User user = userRepository.findByEmail(email).orElse(null);
-                    
-                    System.out.println("USER ROLE: " + user.getRole());
 
                     if (user != null && jwtUtil.validateToken(token, user.getEmail())) {
 
-                    	String role = jwtUtil.extractRole(token);
+                        // ✅ Get role from token
+                        String role = jwtUtil.extractRole(token);
 
-                    	var authorities = List.of(new SimpleGrantedAuthority(role));
+                        var authorities = List.of(new SimpleGrantedAuthority(role));
 
                         var authToken = new UsernamePasswordAuthenticationToken(user, null, authorities);
 
@@ -69,13 +67,16 @@ public class JwtFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-    
+
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
 
         String path = request.getServletPath();
 
         return path.equals("/api/users/login") ||
-               path.equals("/api/users/register");
+               path.equals("/api/users/register") ||
+               path.equals("/api/users/forgot-password") ||
+               path.equals("/api/users/verify-answer") ||
+               path.equals("/api/users/reset-password");
     }
 }

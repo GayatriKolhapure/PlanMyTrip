@@ -2,9 +2,13 @@ package com.sit.model;
 
 import java.util.List;
 
+import com.sit.enums.SecurityQuestion;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -39,5 +43,9 @@ public class User {
     private String password;
     
     private String role;
+    
+    @Enumerated(EnumType.STRING)
+    private SecurityQuestion securityQuestion;
+    private String securityAnswer;
 
 }

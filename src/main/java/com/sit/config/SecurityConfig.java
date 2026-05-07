@@ -14,32 +14,39 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity   // 👈 ADD THIS
+@EnableMethodSecurity
 public class SecurityConfig {
 
-        @Autowired
-        private JwtFilter jwtFilter;
-        
-        @Bean
-        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    @Autowired
+    private JwtFilter jwtFilter;
 
-            http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-                    .requestMatchers("/api/users/login", "/api/users/register").permitAll()
-                    .requestMatchers("/api/users/admin/register").permitAll()
+        http
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
 
-                    .requestMatchers("/api/trips/**").permitAll() // 👈 fix
+            	    // ✅ PUBLIC APIs
+            	    .requestMatchers(
+            	        "/api/users/login",
+            	        "/api/users/register",
+            	        "/api/users/forgot-password",
+            	        "/api/users/verify-answer",
+            	        "/api/users/reset-password"
+            	    ).permitAll()
 
-                    .requestMatchers("/api/users/admin/**").hasRole("ADMIN")
-                    .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN")
+            	    // 🔴 ADMIN
+            	    .requestMatchers("/api/users/admin/**").hasRole("ADMIN")
 
-                    .anyRequest().authenticated()
-                );
+            	    // 🟢 USER + ADMIN
+            	    .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN")
 
-            http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+            	    .anyRequest().authenticated()
+            	);
 
-            return http.build();
-        }
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
 }

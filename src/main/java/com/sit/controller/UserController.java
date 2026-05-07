@@ -3,12 +3,16 @@ package com.sit.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sit.dto.ForgotPasswordDto;
 import com.sit.dto.LoginRequestDto;
 import com.sit.dto.RegisterUserRequestDto;
+import com.sit.dto.ResetPasswordDto;
+import com.sit.dto.VerifyAnswerDto;
 import com.sit.model.User;
 import com.sit.service.UserService;
 
@@ -36,7 +40,20 @@ public class UserController {
 		return service.createAdmin(request);
 	}
 	
-	//public User 
+	@PostMapping("/forgot-password")
+	public String forgotPassword(@RequestBody ForgotPasswordDto req) {
+	    return service.getSecurityQuestion(req.getEmail());
+	}
+
+	@PostMapping("/verify-answer")
+	public String verifyAnswer(@RequestBody VerifyAnswerDto request) {
+	    return service.verifyAnswer(request.getEmail(), request.getAnswer());
+	}
+
+	@PutMapping("/reset-password")
+	public String resetPassword(@RequestBody ResetPasswordDto req) {
+	    return service.resetPassword(req.getEmail(), req.getNewPassword());
+	}
 	
 	
 	

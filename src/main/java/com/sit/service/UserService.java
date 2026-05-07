@@ -40,6 +40,8 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setPassword(encoder.encode(request.getPassword()));
         user.setRole("ROLE_USER");
+        user.setSecurityQuestion(request.getSecurityQuestion());
+        user.setSecurityAnswer(encoder.encode(request.getSecurityAnswer()));
 
 
         return repo.save(user);
@@ -79,5 +81,34 @@ public class UserService {
         // ❌ No budget / interests
 
         return repo.save(user);
+    }
+    public String getSecurityQuestion(String email) {
+
+        User user = repo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return user.getSecurityQuestion().getQuestion();
+    }
+    public String verifyAnswer(String email, String answer) {
+
+        User user = repo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!encoder.matches(answer, user.getSecurityAnswer())) {
+            throw new RuntimeException("Wrong answer");
+        }
+
+        return "Answer correct";
+    }
+    public String resetPassword(String email, String newPassword) {
+
+        User user = repo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setPassword(encoder.encode(newPassword));
+
+        repo.save(user);
+
+        return "Password updated";
     }
 }
