@@ -27,25 +27,21 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
 
-            	    // ✅ PUBLIC APIs
-            	    .requestMatchers(
-            	        "/api/users/login",
-            	        "/api/users/register",
-            	        "/api/users/forgot-password",
-            	        "/api/users/verify-answer",
-            	        "/api/users/reset-password"
-            	    ).permitAll()
+                // ✅ PUBLIC APIs (FIXED)
+                .requestMatchers(
+                        "/api/users/**",
+                        "/api/destinations/**",
+                        "/api/restaurants/**",  
+                        "/api/hotels/**",        
+                        "/api/trips/**",
+                        "/budget/**"
+                ).permitAll()
 
-            	    // 🔴 ADMIN
-            	    .requestMatchers("/api/users/admin/**").hasRole("ADMIN")
+                // 🔒 everything else secured
+                .anyRequest().authenticated()
+            )
 
-            	    // 🟢 USER + ADMIN
-            	    .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN")
-
-            	    .anyRequest().authenticated()
-            	);
-
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
