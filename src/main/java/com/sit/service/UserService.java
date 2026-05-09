@@ -1,11 +1,15 @@
 package com.sit.service;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.sit.dto.LoginRequestDto;
 import com.sit.dto.RegisterUserRequestDto;
+import com.sit.dto.UserResponse;
 import com.sit.model.User;
 import com.sit.repository.UserRepository;
 import com.sit.utility.JwtUtil;
@@ -24,11 +28,20 @@ public class UserService {
     public UserService(PasswordEncoder encoder) {
         this.encoder = encoder;
     }
+    
+    private UserResponse mapToResponse(User user) {
+        return new UserResponse(
+            user.getId(),
+            user.getFName(),
+            user.getLName(),
+            user.getEmail(),
+            user.getRole()
+        );
+    }
 
     // 🔷 REGISTER USER (always ROLE_USER)
-    public User register(RegisterUserRequestDto request) {
+    public UserResponse register(RegisterUserRequestDto request) {
 
-        // 🔴 Check if email already exists
         if (repo.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already registered");
         }
@@ -43,12 +56,14 @@ public class UserService {
         user.setSecurityQuestion(request.getSecurityQuestion());
         user.setSecurityAnswer(encoder.encode(request.getSecurityAnswer()));
 
+        User saved = repo.save(user);
 
-        return repo.save(user);
+        // ✅ Convert to response DTO
+        return mapToResponse(saved);
     }
 
     // 🔷 LOGIN USER (JWT)
-    public String login(LoginRequestDto request) {
+    public UserResponse login(LoginRequestDto request) {
 
         User user = repo.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -57,11 +72,17 @@ public class UserService {
             throw new RuntimeException("Invalid password");
         }
 
-        return jwtUtil.generateToken(user.getEmail(), user.getRole());
+        return new UserResponse(
+                user.getId(),
+                user.getFName(),
+                user.getLName(),
+                user.getEmail(),
+                user.getRole()
+        );
     }
 
     // 🔷 CREATE ADMIN (only once)
-    public User createAdmin(RegisterUserRequestDto request) {
+    public UserResponse createAdmin(RegisterUserRequestDto request) {
 
         boolean adminExists = repo.existsByRole("ROLE_ADMIN");
 
@@ -75,13 +96,16 @@ public class UserService {
         user.setLName(request.getLName());
         user.setEmail(request.getEmail());
         user.setPassword(encoder.encode(request.getPassword()));
-
         user.setRole("ROLE_ADMIN");
 
-        // ❌ No budget / interests
+        User saved = repo.save(user);
 
-        return repo.save(user);
+        // ✅ Convert to UserResponse
+        return mapToResponse(saved);
     }
+    
+    private final Set<String> verifiedUsers = new HashSet<>();
+    
     public String getSecurityQuestion(String email) {
 
         User user = repo.findByEmail(email)
@@ -89,26 +113,40 @@ public class UserService {
 
         return user.getSecurityQuestion().getQuestion();
     }
-    public String verifyAnswer(String email, String answer) {
+    
+    public boolean verifyAnswer(String email, String answer) {
 
         User user = repo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!encoder.matches(answer, user.getSecurityAnswer())) {
+        boolean isCorrect = encoder.matches(answer, user.getSecurityAnswer());
+
+        if (!isCorrect) {
             throw new RuntimeException("Wrong answer");
         }
 
-        return "Answer correct";
+        // ✅ mark user as verified
+        verifiedUsers.add(email);
+
+        return true;
     }
+   
+    
     public String resetPassword(String email, String newPassword) {
+
+        // ❌ block if not verified
+        if (!verifiedUsers.contains(email)) {
+            throw new RuntimeException("Please verify security question and answer first");
+        }
 
         User user = repo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         user.setPassword(encoder.encode(newPassword));
-
         repo.save(user);
 
-        return "Password updated";
-    }
-}
+        // ✅ remove after reset (important)
+        verifiedUsers.remove(email);
+
+        return "Password updated successfully";
+    }}
