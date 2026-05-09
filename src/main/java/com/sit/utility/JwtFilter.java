@@ -37,25 +37,36 @@ public class JwtFilter extends OncePerRequestFilter {
 
             String authHeader = request.getHeader("Authorization");
 
+            // ✅ Check if header exists and starts with Bearer
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
                 String token = authHeader.substring(7);
 
+                // ✅ Extract email from token
                 String email = jwtUtil.extractEmail(token);
 
+                // ✅ Check if already authenticated
                 if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
                     User user = userRepository.findByEmail(email).orElse(null);
 
+                    // ✅ Validate token
                     if (user != null && jwtUtil.validateToken(token, user.getEmail())) {
 
-                        // ✅ Get role from token
+                        // ✅ Extract role from token
                         String role = jwtUtil.extractRole(token);
 
+                        // ✅ Set authority (VERY IMPORTANT)
                         var authorities = List.of(new SimpleGrantedAuthority(role));
 
-                        var authToken = new UsernamePasswordAuthenticationToken(user, null, authorities);
+                        // ✅ Create authentication object
+                        var authToken = new UsernamePasswordAuthenticationToken(
+                                user,
+                                null,
+                                authorities
+                        );
 
+                        // ✅ Set authentication in context
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
                 }
@@ -65,9 +76,11 @@ public class JwtFilter extends OncePerRequestFilter {
             System.out.println("JWT ERROR: " + e.getMessage());
         }
 
+        // ✅ Continue filter chain
         filterChain.doFilter(request, response);
     }
 
+    // ✅ Skip JWT filter for public APIs
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
 
@@ -75,9 +88,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
         return path.equals("/api/users/login") ||
                path.equals("/api/users/register") ||
+               path.equals("/api/users/admin/register") ||
                path.equals("/api/users/forgot-password") ||
                path.equals("/api/users/verify-answer") ||
-               path.equals("/api/users/reset-password") ;
-               
+               path.equals("/api/users/reset-password");
     }
 }

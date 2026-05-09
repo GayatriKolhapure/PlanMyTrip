@@ -38,14 +38,14 @@ public class UserController {
 	}
 	
 	@PostMapping("/login")
-	public ApiResponse<UserResponse> login(@RequestBody LoginRequestDto request) {
+	public ApiResponse<String> login(@RequestBody LoginRequestDto request) {
 
-	    UserResponse user = service.login(request); 
+	    String token = service.login(request);
 
 	    return new ApiResponse<>(
 	            "success",
 	            "Login successful",
-	            user
+	            token   // ✅ ONLY token in data
 	    );
 	}
 

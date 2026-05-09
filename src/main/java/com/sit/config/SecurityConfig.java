@@ -19,29 +19,39 @@ public class SecurityConfig {
 
     @Autowired
     private JwtFilter jwtFilter;
+    
+    @Autowired
+    private CustomAccessDeniedHandler accessDeniedHandler;
+    
+    @Autowired
+    private CustomAuthEntryPoint authEntryPoint;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
+    	http
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth -> auth
 
-                // ✅ PUBLIC APIs (FIXED)
-                .requestMatchers(
-                        "/api/users/**",
-                        "/api/destinations/**",
-                        "/api/restaurants/**",  
-                        "/api/hotels/**",        
-                        "/api/trips/**",
-                        "/budget/**"
-                ).permitAll()
+            .requestMatchers(
+                    "/api/users/login",
+                    "/api/users/register",
+                    "/api/users/admin/register",
+                    "/api/users/forgot-password",
+                    "/api/users/verify-answer",
+                    "/api/users/reset-password"
+            ).permitAll()
 
-                // 🔒 everything else secured
-                .anyRequest().authenticated()
-            )
+            .anyRequest().authenticated()
+        )
 
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        // ✅ ADD THIS BLOCK
+        .exceptionHandling(ex -> ex
+        	    .accessDeniedHandler(accessDeniedHandler)
+        	    .authenticationEntryPoint(authEntryPoint)  
+        	)
+
+        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

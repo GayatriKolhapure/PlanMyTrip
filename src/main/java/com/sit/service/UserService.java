@@ -63,7 +63,7 @@ public class UserService {
     }
 
     // 🔷 LOGIN USER (JWT)
-    public UserResponse login(LoginRequestDto request) {
+    public String login(LoginRequestDto request) {
 
         User user = repo.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -72,15 +72,10 @@ public class UserService {
             throw new RuntimeException("Invalid password");
         }
 
-        return new UserResponse(
-                user.getId(),
-                user.getFName(),
-                user.getLName(),
-                user.getEmail(),
-                user.getRole()
-        );
+        // ✅ Generate JWT token
+        return jwtUtil.generateToken(user.getEmail(), user.getRole());
     }
-
+    
     // 🔷 CREATE ADMIN (only once)
     public UserResponse createAdmin(RegisterUserRequestDto request) {
 
