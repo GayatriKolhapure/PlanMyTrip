@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Budget Tracker</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial;
+        }
+
+        body {
+            background: #111827;
+            color: white;
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: #1f2937;
+            padding: 30px;
+            border-radius: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .result {
+            margin-top: 30px;
+            background: #374151;
+            padding: 25px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result h2 {
+            margin-bottom: 20px;
+        }
+
+        .result p {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .green {
+            color: #10b981;
+        }
+
+        .yellow {
+            color: #facc15;
+        }
+
+        .red {
+            color: #ef4444;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <h1>Budget Tracker</h1>
+
+    <div class="container">
+
+        <div class="form-group">
+
+            <label>Trip ID</label>
+
+            <input type="number" id="tripId" placeholder="Enter Trip ID">
+
+        </div>
+
+        <div class="form-group">
+
+            <label>Total Budget</label>
+
+            <input type="number" id="totalBudget" placeholder="Enter Total Budget">
+
+        </div>
+
+        <button onclick="calculateBudget()">
+            Calculate Budget
+        </button>
+
+        <div class="result" id="resultBox">
+
+            <h2>Budget Summary</h2>
+
+            <p>
+                <strong>Total Budget:</strong>
+                ₹<span id="rTotal"></span>
+            </p>
+
+            <p>
+                <strong>Estimated Cost:</strong>
+                ₹<span id="rEstimated"></span>
+            </p>
+
+            <p>
+                <strong>Remaining Budget:</strong>
+                ₹<span id="rRemaining"></span>
+            </p>
+
+            <p>
+                <strong>Status:</strong>
+                <span id="rStatus"></span>
+            </p>
+
+            <p>
+                <strong>Suggestion:</strong>
+                <span id="rSuggestion"></span>
+            </p>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        const API_BASE = "http://localhost:8081";
+
+        async function calculateBudget() {
+
+            const tripId =
+                document.getElementById("tripId").value;
+
+            const totalBudget =
+                document.getElementById("totalBudget").value;
+
+            if (!tripId || !totalBudget) {
+
+                alert("Please fill all fields");
+
+                return;
+            }
+
+            try {
+
+                const response = await fetch(
+                    `${API_BASE}/budget/calculate`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            tripId: Number(tripId),
+                            totalBudget: Number(totalBudget)
+                        })
+                    }
+                );
+
+                const text = await response.text();
+
+                console.log(text);
+
+                if (!response.ok) {
+
+                    alert(text);
+                    return;
+                }
+
+                const data = JSON.parse(text);
+
+                showResult(data);
+
+            }
+            catch (error) {
+
+                console.log(error);
+
+                alert("Server Error");
+            }
+
+            function showResult(data) {
+
+                document
+                    .getElementById("resultBox")
+                    .style.display = "block";
+
+                document
+                    .getElementById("rTotal")
+                    .innerText = data.totalBudget;
+
+                document
+                    .getElementById("rEstimated")
+                    .innerText = data.estimatedCost;
+
+                document
+                    .getElementById("rRemaining")
+                    .innerText = data.remainingBudget;
+
+                document
+                    .getElementById("rStatus")
+                    .innerText = data.status;
+
+                document
+                    .getElementById("rSuggestion")
+                    .innerText = data.suggestion;
+
+                const status =
+                    document.getElementById("rStatus");
+
+                status.classList.remove(
+                    "green",
+                    "yellow",
+                    "red"
+                );
+
+                if (data.status === "UNDER_BUDGET") {
+
+                    status.classList.add("green");
+                }
+                else if (data.status === "WITHIN_BUDGET") {
+
+                    status.classList.add("yellow");
+                }
+                else {
+
+                    status.classList.add("red");
+                }
+            }
+        }
+
+    </script>
+
+</body>
+
+</html>

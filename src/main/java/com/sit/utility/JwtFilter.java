@@ -81,16 +81,19 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     // ✅ Skip JWT filter for public APIs
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
+    		@Override
+    		protected boolean shouldNotFilter(HttpServletRequest request) {
 
-        String path = request.getServletPath();
+    		    String path = request.getServletPath();
 
-        return path.equals("/api/users/login") ||
-               path.equals("/api/users/register") ||
-               path.equals("/api/users/admin/register") ||
-               path.equals("/api/users/forgot-password") ||
-               path.equals("/api/users/verify-answer") ||
-               path.equals("/api/users/reset-password");
-    }
+    		    System.out.println("PATH: " + path);
+
+    		    return path.startsWith("/api/users/login") ||
+    		           path.startsWith("/api/users/register") ||
+    		           path.startsWith("/api/users/forgot-password") ||
+    		           path.startsWith("/api/users/verify-answer") ||
+    		           path.startsWith("/api/users/reset-password");
+    		}
+    		
+
 }

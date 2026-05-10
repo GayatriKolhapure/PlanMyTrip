@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Hotels</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial;
+        }
+
+        body{
+            background:#111827;
+            color:white;
+            padding:40px;
+        }
+
+        h1{
+            text-align:center;
+            margin-bottom:40px;
+        }
+
+        .top-bar{
+            display:flex;
+            justify-content:space-between;
+            margin-bottom:30px;
+            gap:20px;
+        }
+
+        input{
+            flex:1;
+            padding:12px;
+            border:none;
+            border-radius:8px;
+            font-size:16px;
+        }
+
+        button{
+            padding:12px 20px;
+            border:none;
+            border-radius:8px;
+            background:#2563eb;
+            color:white;
+            cursor:pointer;
+            font-size:16px;
+        }
+
+        .hotel-container{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+            gap:25px;
+        }
+
+        .hotel-card{
+            background:#1f2937;
+            border-radius:12px;
+            overflow:hidden;
+            box-shadow:0 0 10px rgba(0,0,0,0.3);
+        }
+
+        .hotel-card img{
+            width:100%;
+            height:220px;
+            object-fit:cover;
+        }
+
+        .hotel-content{
+            padding:20px;
+        }
+
+        .hotel-content h2{
+            margin-bottom:10px;
+        }
+
+        .hotel-content p{
+            margin-bottom:8px;
+            color:#d1d5db;
+        }
+
+        .price{
+            color:#10b981;
+            font-weight:bold;
+            font-size:18px;
+        }
+
+        .rating{
+            color:gold;
+        }
+
+        .facilities{
+            margin-top:10px;
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+        }
+
+        .tag{
+            background:#374151;
+            padding:6px 10px;
+            border-radius:20px;
+            font-size:13px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <h1>Explore Hotels</h1>
+
+    <div class="top-bar">
+
+        <input
+            type="text"
+            id="locationInput"
+            placeholder="Search by location..."
+        >
+
+        <button onclick="searchHotels()">
+            Search
+        </button>
+
+        <button onclick="loadHotels()">
+            All Hotels
+        </button>
+
+    </div>
+
+    <div class="hotel-container" id="hotelContainer">
+
+    </div>
+
+<script>
+
+const API_BASE = "http://localhost:8081";
+
+const token = localStorage.getItem("token");
+
+async function loadHotels(){
+
+    try{
+
+        const response = await fetch(
+            `${API_BASE}/api/hotels`,
+            {
+                headers:{
+                    "Authorization":`Bearer ${token}`
+                }
+            }
+        );
+
+        if(response.status === 403){
+
+            alert("Please login first");
+
+            window.location.href = "login.html";
+
+            return;
+        }
+
+        const hotels = await response.json();
+
+        displayHotels(hotels);
+
+    }
+    catch(error){
+
+        console.log(error);
+
+        alert("Failed to load hotels");
+    }
+}
+
+async function searchHotels(){
+
+    const location =
+        document.getElementById("locationInput").value;
+
+    if(location.trim() === ""){
+
+        loadHotels();
+
+        return;
+    }
+
+    try{
+
+        const response = await fetch(
+            `${API_BASE}/api/hotels/location/${location}`,
+            {
+                headers:{
+                    "Authorization":`Bearer ${token}`
+                }
+            }
+        );
+
+        const hotels = await response.json();
+
+        displayHotels(hotels);
+
+    }
+    catch(error){
+
+        console.log(error);
+
+        alert("Search failed");
+    }
+}
+
+function displayHotels(hotels){
+
+    const container =
+        document.getElementById("hotelContainer");
+
+    container.innerHTML = "";
+
+    if(hotels.length === 0){
+
+        container.innerHTML = "<h2>No Hotels Found</h2>";
+
+        return;
+    }
+
+    hotels.forEach(hotel => {
+
+        container.innerHTML += `
+
+            <div class="hotel-card">
+
+                <img src="${hotel.imageUrl}" alt="hotel">
+
+                <div class="hotel-content">
+
+                    <h2>${hotel.name}</h2>
+
+                    <p>${hotel.description}</p>
+
+                    <p><strong>Location:</strong> ${hotel.location}</p>
+
+                    <p><strong>Type:</strong> ${hotel.type}</p>
+
+                    <p class="price">
+                        ₹${hotel.pricePerNight} / night
+                    </p>
+
+                    <p class="rating">
+                        ⭐ ${hotel.rating}
+                    </p>
+
+                    <div class="facilities">
+
+                        ${hotel.hasWifi ? '<span class="tag">WiFi</span>' : ''}
+
+                        ${hotel.hasParking ? '<span class="tag">Parking</span>' : ''}
+
+                        ${hotel.hasPool ? '<span class="tag">Pool</span>' : ''}
+
+                        ${hotel.hasRestaurant ? '<span class="tag">Restaurant</span>' : ''}
+
+                    </div>
+
+                    <br>
+
+                    <button onclick="bookHotel(${hotel.id})">
+                        Book Now
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+    });
+}
+
+function bookHotel(id){
+
+    alert("Hotel Booking Started for Hotel ID: " + id);
+
+    // future booking module
+}
+
+loadHotels();
+
+</script>
+
+</body>
+</html>

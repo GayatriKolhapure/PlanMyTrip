@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - PlanMyTrip</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial, sans-serif;
+        }
+
+        body{
+            height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background:#f4f4f4;
+        }
+
+        .container{
+            width:400px;
+            background:white;
+            padding:30px;
+            border-radius:10px;
+            box-shadow:0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h2{
+            text-align:center;
+            margin-bottom:20px;
+        }
+
+        input, select{
+            width:100%;
+            padding:10px;
+            margin-top:10px;
+            border:1px solid #ccc;
+            border-radius:5px;
+        }
+
+        button{
+            width:100%;
+            padding:12px;
+            margin-top:20px;
+            border:none;
+            background:#2563eb;
+            color:white;
+            font-size:16px;
+            border-radius:5px;
+            cursor:pointer;
+        }
+
+        button:hover{
+            background:#1e40af;
+        }
+
+        .login-link{
+            text-align:center;
+            margin-top:15px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Register</h2>
+
+    <input type="text" id="fname" placeholder="First Name">
+
+    <input type="text" id="lname" placeholder="Last Name">
+
+    <input type="email" id="email" placeholder="Email">
+
+    <input type="password" id="password" placeholder="Password">
+
+    <select id="securityQuestion">
+
+        <option value="PET_NAME">
+            What is your pet name?
+        </option>
+
+        <option value="SCHOOL_NAME">
+            What is your school name?
+        </option>
+
+        <option value="FAVORITE_COLOR">
+            What is your favorite color?
+        </option>
+
+        <option value="BIRTH_CITY">
+            In which city were you born?
+        </option>
+
+        <option value="BEST_FRIEND">
+            What is your best friend's name?
+        </option>
+
+    </select>
+
+
+    <input type="text" id="securityAnswer" placeholder="Security Answer">
+
+    <button onclick="registerUser()">
+        Register
+    </button>
+
+    <div class="login-link">
+        Already have account?
+        <a href="login.html">Login</a>
+    </div>
+
+</div>
+
+<script>
+
+const API_BASE = "http://localhost:8081";
+
+async function registerUser(){
+
+    const body = {
+
+        fname: document.getElementById("fname").value,
+        lname: document.getElementById("lname").value,
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value,
+        securityQuestion: document.getElementById("securityQuestion").value,
+        securityAnswer: document.getElementById("securityAnswer").value
+
+    };
+
+    try{
+
+        const response = await fetch(
+            `${API_BASE}/api/users/register`,
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify(body)
+            }
+        );
+
+        const data = await response.text();
+
+        if(response.ok){
+
+            alert("Registration Successful");
+
+            window.location.href = "login.html";
+        }
+        else{
+
+            alert(data);
+        }
+
+    }
+    catch(error){
+
+        console.log(error);
+
+        alert("Server Error");
+    }
+}
+
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,624 @@
+# Updated dashboard.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard — PlanMyTrip</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet" />
+
+    <style>
+        :root {
+            --sand: #f5ede0;
+            --clay: #c9a882;
+            --rust: #b85c38;
+            --ink: #1a1410;
+            --mist: #e8ddd0;
+            --forest: #2d4a3e;
+            --sky: #5b8fa8;
+            --gold: #d4a843;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #f0e8d8;
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--ink);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+        }
+
+        .sidebar-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--clay);
+            margin-bottom: 2rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.9rem 1rem;
+            border-radius: 12px;
+            color: #aaa;
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            transition: 0.3s;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: var(--rust);
+            color: white;
+        }
+
+        .sidebar-spacer {
+            flex: 1;
+        }
+
+        .logout-btn {
+            background: var(--rust);
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .main {
+            margin-left: 260px;
+            flex: 1;
+            padding: 2rem 3rem;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.3rem;
+            font-weight: 900;
+        }
+
+        .page-title span {
+            color: var(--rust);
+            font-style: italic;
+        }
+
+        .btn-new {
+            background: var(--rust);
+            color: white;
+            border: none;
+            padding: 0.9rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 18px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+
+        .trips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .trip-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+        }
+
+        .trip-card-top {
+            height: 140px;
+            padding: 1rem;
+            display: flex;
+            align-items: end;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .trip-dest-bg-1 {
+            background: linear-gradient(135deg, #2d4a3e, #5d8a75);
+        }
+
+        .trip-dest-bg-2 {
+            background: linear-gradient(135deg, #5b8fa8, #356a84);
+        }
+
+        .trip-dest-bg-3 {
+            background: linear-gradient(135deg, #b85c38, #8d3c1e);
+        }
+
+        .trip-dest-bg-4 {
+            background: linear-gradient(135deg, #d4a843, #9a7618);
+        }
+
+        .trip-card-body {
+            padding: 1.2rem;
+        }
+
+        .trip-meta {
+            margin-bottom: 1rem;
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        .budget-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .trip-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .trip-btn {
+            flex: 1;
+            padding: 0.7rem;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .danger {
+            background: rgba(184, 92, 56, 0.1);
+            color: var(--rust);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 24px;
+            padding: 2rem;
+        }
+
+        .modal-group {
+            margin-bottom: 1rem;
+        }
+
+        .modal-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 0.9rem;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-save,
+        .btn-cancel {
+            flex: 1;
+            padding: 0.9rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-save {
+            background: var(--rust);
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #eee;
+        }
+
+        .toast {
+            position: fixed;
+            right: 2rem;
+            bottom: 2rem;
+            background: var(--ink);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside class="sidebar">
+
+        <div class="sidebar-logo">
+            PlanMyTrip
+        </div>
+
+        <a class="nav-item active" href="#">
+            🗺️ My Trips
+        </a>
+
+        <div class="sidebar-spacer"></div>
+
+        <button class="logout-btn" onclick="logout()">
+            Logout
+        </button>
+
+    </aside>
+
+    <main class="main">
+
+        <div class="top-bar">
+
+            <div class="page-title">
+                My <span>Trips</span>
+            </div>
+
+            <button class="btn-new" onclick="openModal()">
+                + New Trip
+            </button>
+
+        </div>
+
+        <div class="stats-row">
+
+            <div class="stat-card">
+                <div>Total Trips</div>
+                <div class="stat-value" id="totalTrips">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div>Upcoming</div>
+                <div class="stat-value" id="upcomingTrips">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div>Total Budget</div>
+                <div class="stat-value" id="totalBudget">₹0</div>
+            </div>
+
+            <div class="stat-card">
+                <div>Completed</div>
+                <div class="stat-value" id="completedTrips">0</div>
+            </div>
+
+        </div>
+
+        <div class="trips-grid" id="tripsGrid">
+        </div>
+
+    </main>
+
+    <div class="modal-overlay" id="modalOverlay">
+
+        <div class="modal">
+
+            <h2 style="margin-bottom:1rem;">
+                Create Trip
+            </h2>
+
+            <div class="modal-group">
+                <label class="modal-label">Destination</label>
+                <input class="modal-input" id="m_destination" type="text" />
+            </div>
+
+            <div class="modal-group">
+                <label class="modal-label">Start Date</label>
+                <input class="modal-input" id="m_startDate" type="date" />
+            </div>
+
+            <div class="modal-group">
+                <label class="modal-label">End Date</label>
+                <input class="modal-input" id="m_endDate" type="date" />
+            </div>
+
+            <div class="modal-group">
+                <label class="modal-label">Budget</label>
+                <input class="modal-input" id="m_budget" type="number" />
+            </div>
+
+            <div class="modal-group">
+                <label class="modal-label">Type</label>
+
+                <select class="modal-input" id="m_style">
+                    <option value="BEACH">Beach</option>
+                    <option value="ADVENTURE">Adventure</option>
+                    <option value="CITY">City</option>
+                    <option value="HILL">Hill</option>
+                </select>
+            </div>
+
+            <div class="modal-actions">
+
+                <button class="btn-cancel" onclick="closeModal()">
+                    Cancel
+                </button>
+
+                <button class="btn-save" onclick="saveTrip()">
+                    Save Trip
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+
+        const API_BASE = 'http://localhost:8081';
+
+        let allTrips = [];
+
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+
+            window.location.href = "login.html";
+        }
+
+        async function loadTrips() {
+
+            try {
+
+                const response = await fetch(
+                    `${API_BASE}/api/trips`
+                );
+
+                const data = await response.json();
+
+                allTrips = data;
+
+                renderTrips(data);
+
+                updateStats(data);
+
+            }
+            catch (error) {
+
+                showToast('Failed to load trips', 'error');
+            }
+        }
+
+        function renderTrips(trips) {
+
+            const grid = document.getElementById('tripsGrid');
+
+            if (trips.length === 0) {
+
+                grid.innerHTML = '<h3>No Trips Found</h3>';
+
+                return;
+            }
+
+            grid.innerHTML = trips.map((trip, index) => `
+
+        <div class="trip-card">
+
+            <div class="trip-card-top trip-dest-bg-${(index % 4) + 1}">
+                ✈️ ${trip.tripName || 'Trip'}
+            </div>
+
+            <div class="trip-card-body">
+
+                <div class="trip-meta">
+                    📅 ${trip.startDate || ''}<br>
+                    🏁 ${trip.endDate || ''}
+                </div>
+
+                <div class="budget-row">
+                    <span>Budget</span>
+                    <strong>₹${trip.totalBudget || 0}</strong>
+                </div>
+
+                <div class="trip-actions">
+
+                    <button
+                        class="trip-btn danger"
+                        onclick="deleteTrip(${trip.tripId})"
+                    >
+                        Delete
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `).join('');
+        }
+
+        function updateStats(trips) {
+
+            document.getElementById('totalTrips').textContent = trips.length;
+
+            document.getElementById('upcomingTrips').textContent = trips.length;
+
+            document.getElementById('completedTrips').textContent = 0;
+
+            let total = 0;
+
+            trips.forEach(t => {
+                total += t.totalBudget || 0;
+            });
+
+            document.getElementById('totalBudget').textContent = `₹${total}`;
+        }
+
+        function openModal() {
+            document.getElementById('modalOverlay').classList.add('open');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('open');
+        }
+
+        async function saveTrip() {
+
+            const destination = document.getElementById('m_destination').value;
+            const style = document.getElementById('m_style').value;
+
+            const body = {
+                userId: 1,
+                location: destination,
+                days: 5,
+                type: style
+            };
+
+            try {
+
+                const response = await fetch(
+                    `${API_BASE}/api/trips/plan`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(body)
+                    }
+                );
+
+                if (response.ok) {
+
+                    closeModal();
+
+                    showToast('Trip Created', 'success');
+
+                    loadTrips();
+                }
+            }
+            catch (error) {
+
+                showToast('Trip Creation Failed', 'error');
+            }
+        }
+
+        async function deleteTrip(id) {
+
+            try {
+
+                await fetch(
+                    `${API_BASE}/api/trips/${id}`,
+                    {
+                        method: 'DELETE'
+                    }
+                );
+
+                showToast('Trip Deleted', 'success');
+
+                loadTrips();
+            }
+            catch (error) {
+
+                showToast('Delete Failed', 'error');
+            }
+        }
+
+        function logout() {
+
+            localStorage.removeItem('pmt_token');
+
+            localStorage.removeItem('pmt_user');
+
+            window.location.href = 'login.html';
+        }
+
+        function showToast(msg, type) {
+
+            const toast = document.getElementById('toast');
+
+            toast.innerText = msg;
+
+            toast.className = `toast show ${type}`;
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        loadTrips();
+
+    </script>
+
+</body>
+
+</html>
