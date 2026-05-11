@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.sit.dto.LoginRequestDto;
+import com.sit.dto.LoginResponseDto;
 import com.sit.dto.RegisterUserRequestDto;
 import com.sit.dto.UserResponse;
 import com.sit.model.User;
@@ -63,7 +64,7 @@ public class UserService {
     }
 
     // 🔷 LOGIN USER (JWT)
-    public String login(LoginRequestDto request) {
+    public LoginResponseDto login(LoginRequestDto request) {
 
         User user = repo.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -72,8 +73,15 @@ public class UserService {
             throw new RuntimeException("Invalid password");
         }
 
-        // ✅ Generate JWT token
-        return jwtUtil.generateToken(user.getEmail(), user.getRole());
+//        // ✅ Generate JWT token
+//        return jwtUtil.generateToken(user.getEmail(), user.getRole());
+        
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
+
+        return new LoginResponseDto(
+                user.getId(),
+                token
+        );
     }
     
     // 🔷 CREATE ADMIN (only once)
@@ -145,7 +153,28 @@ public class UserService {
         verifiedUsers.remove(email);
 
         return "Password updated successfully";
-    }}
+    }
+
+		public User getProfile(Long id) {
+		
+		    return repo.findById(id)
+		            .orElseThrow(() ->
+		                new RuntimeException("User not found"));
+		}
+		
+		public User updateProfile(Long id, User newData) {
+		
+		    User old = getProfile(id);
+		
+		    old.setPhone(newData.getPhone());
+		    old.setAddress(newData.getAddress());
+		    old.setGender(newData.getGender());
+		    old.setBio(newData.getBio());
+		    old.setDateOfBirth(newData.getDateOfBirth());
+		
+		    return repo.save(old);
+		}
+		}
 
 
 

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Profile</title>
+
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial, sans-serif;
+    }
+
+    body{
+      background:#0b1220;
+      color:white;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:40px;
+    }
+
+    .profile-container{
+      width:100%;
+      max-width:700px;
+      background:#1e293b;
+      padding:40px;
+      border-radius:20px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .title{
+      text-align:center;
+      margin-bottom:30px;
+      font-size:38px;
+      font-weight:bold;
+      color:#ffffff;
+    }
+
+    .profile-image{
+      width:120px;
+      height:120px;
+      border-radius:50%;
+      object-fit:cover;
+      display:block;
+      margin:0 auto 25px;
+      border:4px solid #2563eb;
+    }
+
+    .form-group{
+      margin-bottom:20px;
+    }
+
+    label{
+      display:block;
+      margin-bottom:8px;
+      font-size:15px;
+      color:#cbd5e1;
+    }
+
+    input,
+    textarea,
+    select{
+      width:100%;
+      padding:14px;
+      border:none;
+      outline:none;
+      border-radius:10px;
+      background:#334155;
+      color:white;
+      font-size:15px;
+    }
+
+    textarea{
+      resize:none;
+      height:100px;
+    }
+
+    .btn{
+      width:100%;
+      padding:15px;
+      border:none;
+      border-radius:10px;
+      background:#2563eb;
+      color:white;
+      font-size:17px;
+      cursor:pointer;
+      transition:0.3s;
+      margin-top:10px;
+    }
+
+    .btn:hover{
+      background:#1d4ed8;
+    }
+
+    .message{
+      text-align:center;
+      margin-top:20px;
+      font-size:15px;
+      color:#22c55e;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="profile-container">
+
+    <h1 class="title">My Profile</h1>
+
+    <img
+      id="profileImagePreview"
+      class="profile-image"
+      src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+      alt="Profile"
+    >
+
+    <!-- <div class="form-group">
+      <label>Profile Image URL</label>
+      <input type="text" id="imageUrl">
+    </div> -->
+
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" id="fullName">
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="email">
+    </div>
+
+    <div class="form-group">
+      <label>Phone Number</label>
+      <input type="text" id="phone">
+    </div>
+
+    <div class="form-group">
+      <label>Gender</label>
+
+      <select id="gender">
+        <option value="">Select Gender</option>
+        <option>Male</option>
+        <option>Female</option>
+        <option>Other</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Date Of Birth</label>
+      <input type="date" id="dateOfBirth">
+    </div>
+
+    <div class="form-group">
+      <label>Address</label>
+      <textarea id="address"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Bio</label>
+      <textarea id="bio"></textarea>
+    </div>
+
+    <button class="btn" onclick="updateProfile()">
+      Save Profile
+    </button>
+
+    <p class="message" id="message"></p>
+
+  </div>
+
+  <script>
+
+    const API_BASE = "http://localhost:8081";
+
+    const token = localStorage.getItem("pmt_token");
+
+    const userId = localStorage.getItem("userId");
+
+    if(!token){
+      window.location.href = "login.html";
+    }
+
+    async function loadProfile(){
+
+      try{
+
+        const response = await fetch(
+          `${API_BASE}/api/users/profile/${userId}`,
+          {
+            headers:{
+              "Authorization":"Bearer " + token
+            }
+          }
+        );
+
+        const data = await response.json();
+
+        document.getElementById("fullName").value =
+        (data.firstName || "") + " " + (data.lastName || "");
+
+        document.getElementById("email").value =
+          data.email || "";
+
+        document.getElementById("phone").value =
+          data.phone || "";
+
+        document.getElementById("gender").value =
+          data.gender || "";
+
+        document.getElementById("dateOfBirth").value =
+          data.dateOfBirth || "";
+
+        document.getElementById("address").value =
+          data.address || "";
+
+        document.getElementById("bio").value =
+          data.bio || "";
+
+        document.getElementById("imageUrl").value =
+          data.imageUrl || "";
+
+        if(data.imageUrl){
+          document.getElementById("profileImagePreview").src =
+            data.imageUrl;
+        }
+
+      }
+      catch(error){
+
+        alert("Failed to load profile");
+
+      }
+
+    }
+
+    async function updateProfile(){
+
+      try{
+
+        const bodyData = {
+
+          fullName:
+            document.getElementById("fullName").value,
+
+          email:
+            document.getElementById("email").value,
+
+          phone:
+            document.getElementById("phone").value,
+
+          gender:
+            document.getElementById("gender").value,
+
+          dateOfBirth:
+            document.getElementById("dateOfBirth").value,
+
+          address:
+            document.getElementById("address").value,
+
+          bio:
+            document.getElementById("bio").value,
+
+        };
+
+        const response = await fetch(
+          `${API_BASE}/api/users/profile/${userId}`,
+          {
+            method:"PUT",
+
+            headers:{
+              "Content-Type":"application/json",
+              "Authorization":"Bearer " + token
+            },
+
+            body:JSON.stringify(bodyData)
+          }
+        );
+
+        if(response.ok){
+
+          document.getElementById("message").innerText =
+            "Profile updated successfully";
+
+          if(imageUrl){
+
+            document.getElementById(
+              "profileImagePreview"
+            ).src = imageUrl;
+          }
+
+        }
+        else{
+
+          alert("Profile update failed");
+
+        }
+
+      }
+      catch(error){
+
+        alert("Something went wrong");
+
+      }
+
+    }
+
+    loadProfile();
+
+  </script>
+
+</body>
+</html>

@@ -66,13 +66,13 @@ public class Hotel {
     @JsonIgnore
     private List<TripPlanning> trips;
     
-    @ManyToMany
-    @JoinTable(
-        name = "trip_hotels",
-        joinColumns = @JoinColumn(name = "trip_id"),
-        inverseJoinColumns = @JoinColumn(name = "hotel_id")
-    )
-    private List<Hotel> hotels;
+//    @ManyToMany
+//    @JoinTable(
+//        name = "trip_hotels",
+//        joinColumns = @JoinColumn(name = "trip_id"),
+//        inverseJoinColumns = @JoinColumn(name = "hotel_id")
+//    )
+//    private List<Hotel> hotels;
     
     
 }

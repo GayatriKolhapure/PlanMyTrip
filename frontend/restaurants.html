@@ -9,212 +9,430 @@
     <title>Restaurants</title>
 
     <style>
-
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:Arial;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+  
+        body {
+            background: #0b1220;
+            color: white;
+            min-height: 100vh;
         }
 
-        body{
-            background:#111827;
-            color:white;
-            padding:40px;
+        .navbar {
+            width: 100%;
+            padding: 20px 60px;
+            background: #111827;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        h1{
-            text-align:center;
-            margin-bottom:40px;
+        .logo {
+            font-size: 30px;
+            font-weight: 700;
+            color: #ffffff;
         }
 
-        .restaurant-container{
-            display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-            gap:25px;
+        .nav-links {
+            display: flex;
+            gap: 20px;
         }
 
-        .restaurant-card{
-            background:#1f2937;
-            border-radius:12px;
-            overflow:hidden;
-            box-shadow:0 0 10px rgba(0,0,0,0.3);
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
         }
 
-        .restaurant-card img{
-            width:100%;
-            height:220px;
-            object-fit:cover;
+        h1 {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 45px;
+            margin-bottom: 10px;
         }
 
-        .restaurant-content{
-            padding:20px;
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+            justify-content: center;
         }
 
-        .restaurant-content h2{
-            margin-bottom:10px;
+        .filters input,
+        .filters button {
+            margin-top: 25px;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
         }
 
-        .restaurant-content p{
-            margin-bottom:8px;
-            color:#d1d5db;
+        .filters input {
+            width: 220px;
         }
 
-        .rating{
-            color:gold;
+        .filters button {
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
         }
 
-        .cost{
-            color:#10b981;
-            font-weight:bold;
+        .filters button:hover {
+            background: #1d4ed8;
         }
 
-        .tags{
-            margin-top:12px;
-            display:flex;
-            gap:10px;
-            flex-wrap:wrap;
+        .restaurant-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
         }
 
-        .tag{
-            background:#374151;
-            padding:6px 10px;
-            border-radius:20px;
-            font-size:13px;
+        .restaurant-card {
+            background: #1f2937;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            transition: 0.3s;
         }
 
-        button{
-            margin-top:15px;
-            width:100%;
-            padding:12px;
-            border:none;
-            border-radius:8px;
-            background:#2563eb;
-            color:white;
-            cursor:pointer;
+        .restaurant-card:hover {
+            transform: translateY(-5px);
         }
 
+        .restaurant-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .restaurant-content {
+            padding: 20px;
+        }
+
+        .restaurant-content h2 {
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .restaurant-content p {
+            margin-bottom: 8px;
+            color: #d1d5db;
+            line-height: 1.5;
+        }
+
+        .rating {
+            color: gold;
+            font-weight: bold;
+        }
+
+        .cost {
+            color: #10b981;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .tags {
+            margin-top: 12px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: #374151;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        .reserve-btn {
+            margin-top: 15px;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .reserve-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .empty-message {
+            text-align: center;
+            font-size: 24px;
+            margin-top: 40px;
+            color: #d1d5db;
+        }
     </style>
 
 </head>
 
 <body>
 
-    <h1>Restaurants & Cafes</h1>
+    <div class="navbar">
 
-    <div
-        class="restaurant-container"
-        id="restaurantContainer"
-    >
+        <div class="logo">
+            PlanMyTrip
+        </div>
+
+        <div class="nav-links">
+            <a href="./index.html">Home</a>
+            <a href="./dashboard.html">Dashboard</a>
+            <a href="./hotels.html">Hotels</a>
+            <a href="./destinations.html">Destinations</a>
+        </div>
 
     </div>
 
-<script>
+    <h1>Restaurants & Cafes</h1>
 
-const API_BASE = "http://localhost:8081";
+    <div class="filters">
 
-const token = localStorage.getItem("token");
+        <input type="text"
+               id="locationFilter"
+               placeholder="Search location">
 
-async function loadRestaurants(){
+        <button onclick="applyFilters()">
+            Search
+        </button>
 
-    try{
+        <button onclick="loadRestaurants()">
+            Reset
+        </button>
 
-        const response = await fetch(
-            `${API_BASE}/api/restaurants`,
-            {
-                headers:{
-                    "Authorization":`Bearer ${token}`
-                }
-            }
-        );
+    </div>
 
-        if(response.status === 403){
+    <div class="restaurant-container"
+         id="restaurantContainer">
+    </div>
+
+    <script>
+
+        const API_BASE = "http://localhost:8081";
+
+        const token = localStorage.getItem("pmt_token");
+
+        // ✅ check login
+        if (!token) {
 
             alert("Please login first");
 
-            window.location.href = "login.html";
-
-            return;
+            window.location.href = "./login.html";
         }
 
-        const restaurants = await response.json();
+        // ✅ load restaurants
+        async function loadRestaurants() {
 
-        displayRestaurants(restaurants);
+            try {
 
-    }
-    catch(error){
+                const response = await fetch(
+                    `${API_BASE}/api/restaurants`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json"
+                        }
+                    }
+                );
 
-        console.log(error);
+                // ✅ session expired
+                if (response.status === 401 ||
+                    response.status === 403) {
 
-        alert("Failed to load restaurants");
-    }
-}
+                    alert("Session expired. Please login again.");
 
-function displayRestaurants(restaurants){
+                    localStorage.removeItem("pmt_token");
 
-    const container =
-        document.getElementById("restaurantContainer");
+                    window.location.href = "./login.html";
 
-    container.innerHTML = "";
+                    return;
+                }
 
-    restaurants.forEach(r => {
+                if (!response.ok) {
+                    throw new Error("Failed to fetch restaurants");
+                }
 
-        container.innerHTML += `
+                const restaurants = await response.json();
 
-            <div class="restaurant-card">
+                displayRestaurants(restaurants);
 
-                <img src="${r.imageUrl}" alt="restaurant">
+            }
+            catch (error) {
 
-                <div class="restaurant-content">
+                console.log(error);
 
-                    <h2>${r.name}</h2>
+                document.getElementById(
+                    "restaurantContainer"
+                ).innerHTML = `
+                    <div class="empty-message">
+                        Failed to load restaurants
+                    </div>
+                `;
+            }
+        }
 
-                    <p>${r.description}</p>
+        // ✅ display restaurants
+        function displayRestaurants(restaurants) {
 
-                    <p><strong>Location:</strong> ${r.location}</p>
+            const container =
+                document.getElementById(
+                    "restaurantContainer"
+                );
 
-                    <p><strong>Cuisine:</strong> ${r.cuisine}</p>
+            container.innerHTML = "";
 
-                    <p><strong>Type:</strong> ${r.type}</p>
+            if (restaurants.length === 0) {
 
-                    <p class="cost">
-                        ₹${r.averageCostPerPerson} per person
-                    </p>
+                container.innerHTML = `
+                    <div class="empty-message">
+                        No Restaurants Found
+                    </div>
+                `;
 
-                    <p class="rating">
-                        ⭐ ${r.rating}
-                    </p>
+                return;
+            }
 
-                    <div class="tags">
+            restaurants.forEach(r => {
 
-                        ${r.hasWifi ? '<span class="tag">WiFi</span>' : ''}
+                container.innerHTML += `
 
-                        ${r.hasParking ? '<span class="tag">Parking</span>' : ''}
+                <div class="restaurant-card">
 
-                        ${r.vegOnly ? '<span class="tag">Veg Only</span>' : ''}
+                    <img src="${r.imageUrl || 'https://via.placeholder.com/400x220'}"
+                         alt="restaurant">
+
+                    <div class="restaurant-content">
+
+                        <h2>${r.name}</h2>
+
+                        <p>${r.description || ''}</p>
+
+                        <p>
+                            <strong>Location:</strong>
+                            ${r.location}
+                        </p>
+
+                        <p>
+                            <strong>Cuisine:</strong>
+                            ${r.cuisine || 'N/A'}
+                        </p>
+
+                        <p>
+                            <strong>Type:</strong>
+                            ${r.type || 'N/A'}
+                        </p>
+
+                        <p class="cost">
+                            ₹${r.averageCostPerPerson || 0}
+                            per person
+                        </p>
+
+                        <p class="rating">
+                            ⭐ ${r.rating || 0}
+                        </p>
+
+                        <div class="tags">
+
+                            ${r.hasWifi
+                                ? '<span class="tag">WiFi</span>'
+                                : ''}
+
+                            ${r.hasParking
+                                ? '<span class="tag">Parking</span>'
+                                : ''}
+
+                            ${r.vegOnly
+                                ? '<span class="tag">Veg Only</span>'
+                                : ''}
+
+                        </div>
+
+                        <button class="reserve-btn"
+                                onclick="reserveRestaurant(${r.id})">
+
+                            Reserve Table
+
+                        </button>
 
                     </div>
 
-                    <button onclick="reserveRestaurant(${r.id})">
-                        Reserve Table
-                    </button>
-
                 </div>
 
-            </div>
+                `;
+            });
+        }
 
-        `;
-    });
-}
+        // ✅ filter by location
+        async function applyFilters() {
 
-function reserveRestaurant(id){
+            const location =
+                document.getElementById(
+                    "locationFilter"
+                ).value.trim();
 
-    alert("Restaurant Reservation Started for ID: " + id);
-}
+            // empty search
+            if (location === "") {
 
-loadRestaurants();
+                loadRestaurants();
 
-</script>
+                return;
+            }
+
+            try {
+
+                const response = await fetch(
+                    `${API_BASE}/api/restaurants/location/${location}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json"
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error();
+                }
+
+                const restaurants = await response.json();
+
+                displayRestaurants(restaurants);
+
+            }
+            catch (error) {
+
+                console.log(error);
+
+                alert("Failed to search restaurants");
+            }
+        }
+
+        // ✅ reserve table
+        function reserveRestaurant(id) {
+
+            alert(
+                "Restaurant Reservation Started for ID: "
+                + id
+            );
+        }
+
+
+        // ✅ first load
+        loadRestaurants();
+
+    </script>
 
 </body>
+
 </html>

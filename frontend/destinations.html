@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Destinations - PlanMyTrip</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #0b1220;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            width: 100%;
+            padding: 20px 60px;
+            background: #111827;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 30px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+        }
+
+        .container {
+            width: 90%;
+            margin: 40px auto;
+        }
+
+        .heading {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .heading h1 {
+            font-size: 45px;
+            margin-bottom: 10px;
+        }
+
+        .heading p {
+            color: #cbd5e1;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+            justify-content: center;
+        }
+
+        .filters input,
+        .filters select,
+        .filters button {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .filters input,
+        .filters select {
+            width: 220px;
+        }
+
+        .filters button {
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+        }
+
+        .destination-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: #1e293b;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-content h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .type {
+            display: inline-block;
+            background: #2563eb;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .desc {
+            color: #cbd5e1;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .rating {
+            color: gold;
+        }
+
+        .empty {
+            text-align: center;
+            margin-top: 60px;
+            font-size: 20px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="navbar">
+
+        <div class="logo">
+            PlanMyTrip
+        </div>
+
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="hotels.html">Hotels</a>
+            <a href="restaurants.html">Restaurants</a>
+        </div>
+
+    </div>
+
+    <div class="container">
+
+        <div class="heading">
+            <h1>Explore Destinations</h1>
+            <p>Find beaches, hills, cities and adventure places</p>
+        </div>
+
+        <div class="filters">
+
+            <input type="text" id="searchInput" placeholder="Search destination">
+
+            <select id="typeFilter">
+                <option value="">All Types</option>
+                <option value="BEACH">Beach</option>
+                <option value="HILL">Hill</option>
+                <option value="CITY">City</option>
+                <option value="ADVENTURE">Adventure</option>
+            </select>
+
+            <input type="text" id="locationFilter" placeholder="Search location">
+
+            <button onclick="applyFilters()">
+                Search
+            </button>
+
+            <button onclick="loadDestinations()">
+                Reset
+            </button>
+
+        </div>
+
+        <div class="destination-grid" id="destinationGrid">
+
+        </div>
+
+    </div>
+
+    <script>
+
+        const API_BASE = "http://localhost:8081";
+
+        const token = localStorage.getItem("pmt_token");
+
+        if (!token) {
+            window.location.href = "login.html";
+        }
+
+        async function loadDestinations() {
+
+            try {
+
+                const response = await fetch(
+                    `${API_BASE}/api/destinations`,
+                    {
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+                );
+
+                const data = await response.json();
+
+                renderDestinations(data);
+
+            } catch (error) {
+
+                alert("Failed to load destinations");
+            }
+        }
+
+        function renderDestinations(destinations) {
+
+            const grid = document.getElementById("destinationGrid");
+
+            if (destinations.length === 0) {
+
+                grid.innerHTML = `
+                    <div class="empty">
+                        No destinations found
+                    </div>
+                `;
+
+                return;
+            }
+
+            grid.innerHTML = destinations.map(d => `
+
+                <div class="card">
+
+                    <img src="${d.imageUrl}" alt="${d.name}">
+
+                    <div class="card-content">
+
+                        <span class="type">
+                            ${d.type}
+                        </span>
+
+                        <h2>${d.name}</h2>
+
+                        <p class="desc">
+                            ${d.description}
+                        </p>
+
+                        <div class="details">
+                            <span>📍 ${d.location}</span>
+                            <span class="rating">⭐ ${d.rating}</span>
+                        </div>
+
+                        <div class="details">
+                            <span>Estimated Cost</span>
+                            <strong>₹${d.estimatedCost}</strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            `).join("");
+        }
+
+        async function applyFilters() {
+
+            const search = document.getElementById("searchInput").value.trim();
+
+            const type = document.getElementById("typeFilter").value;
+
+            const location = document.getElementById("locationFilter").value.trim();
+
+            let url = `${API_BASE}/api/destinations`;
+
+            try {
+
+                if (search !== "") {
+
+                    url = `${API_BASE}/api/destinations/search?name=${search}`;
+                }
+
+                else if (type !== "") {
+
+                    url = `${API_BASE}/api/destinations/type/${type}`;
+                }
+
+                else if (location !== "") {
+
+                    url = `${API_BASE}/api/destinations/location/${location}`;
+                }
+
+                const response = await fetch(
+                    url,
+                    {
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+                );
+
+                const data = await response.json();
+
+                renderDestinations(data);
+
+            } catch (error) {
+
+                alert("Filter failed");
+            }
+        }
+
+        loadDestinations();
+
+    </script>
+
+</body>
+
+</html>

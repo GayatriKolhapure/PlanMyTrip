@@ -1,6 +1,9 @@
 package com.sit.model;
 
 
+import java.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sit.enums.SecurityQuestion;
 
 import jakarta.persistence.Column;
@@ -42,6 +45,18 @@ public class User {
     private String password;
     
     private String role;
+    
+
+	private String phone;
+	
+	private String address;
+	
+	private String gender;
+	
+	private String bio;
+	
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	private LocalDate dateOfBirth;
     
     @Enumerated(EnumType.STRING)
     private SecurityQuestion securityQuestion;

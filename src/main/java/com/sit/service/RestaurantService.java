@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.sit.model.Destination;
 import com.sit.model.Restaurant;
 import com.sit.repository.RestaurantRepository;
 
@@ -57,4 +58,8 @@ public class RestaurantService {
     public void delete(Long id) {
         repo.deleteById(id);
     }
+
+	public List<Restaurant> getByLocation(String location) {
+		return repo.findByLocationIgnoreCase(location);
+	}
 }

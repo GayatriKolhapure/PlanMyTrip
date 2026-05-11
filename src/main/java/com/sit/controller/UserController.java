@@ -2,6 +2,8 @@ package com.sit.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sit.dto.ApiResponse;
 import com.sit.dto.ForgotPasswordDto;
 import com.sit.dto.LoginRequestDto;
+import com.sit.dto.LoginResponseDto;
 import com.sit.dto.RegisterUserRequestDto;
 import com.sit.dto.ResetPasswordDto;
 import com.sit.dto.UserResponse;
@@ -38,14 +41,15 @@ public class UserController {
 	}
 	
 	@PostMapping("/login")
-	public ApiResponse<String> login(@RequestBody LoginRequestDto request) {
+	public ApiResponse<LoginResponseDto> login(
+	        @RequestBody LoginRequestDto request) {
 
-	    String token = service.login(request);
+	    LoginResponseDto response = service.login(request);
 
 	    return new ApiResponse<>(
 	            "success",
 	            "Login successful",
-	            token   // ✅ ONLY token in data
+	            response
 	    );
 	}
 
@@ -95,6 +99,19 @@ public class UserController {
 	            "Password updated successfully",
 	            true
 	    );
+	}
+	
+	@GetMapping("/profile/{id}")
+	public User getProfile(@PathVariable Long id) {
+	    return service.getProfile(id);
+	}
+
+	@PutMapping("/profile/{id}")
+	public User updateProfile(
+	        @PathVariable Long id,
+	        @RequestBody User user) {
+
+	    return service.updateProfile(id, user);
 	}
 	
 	

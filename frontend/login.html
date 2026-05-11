@@ -457,127 +457,126 @@
 
     </div>
 
-    <script>
+<script>
 
-        const API_BASE = 'http://localhost:8081';
+const API_BASE = "http://localhost:8081";
 
-        // AUTO REDIRECT IF ALREADY LOGGED IN
+// REMOVE OLD INVALID TOKEN
+const existingToken = localStorage.getItem("pmt_token");
 
-        // const existingToken = localStorage.getItem('pmt_token');
+if (
+    existingToken === "undefined" ||
+    existingToken === "null"
+) {
+    localStorage.removeItem("pmt_token");
+    localStorage.removeItem("userId");
+}
 
-        // if (existingToken) {
-        //     window.location.href = 'dashboard.html';
-        // }
+async function handleLogin() {
 
-        async function handleLogin() {
+    const email =
+        document.getElementById("email").value.trim();
 
-            const email =
-                document.getElementById('email').value.trim();
+    const password =
+        document.getElementById("password").value;
 
-            const password =
-                document.getElementById('password').value;
+    const btn =
+        document.getElementById("loginBtn");
 
-            const btn =
-                document.getElementById('loginBtn');
+    const errorMsg =
+        document.getElementById("errorMsg");
 
-            const errorMsg =
-                document.getElementById('errorMsg');
+    const successMsg =
+        document.getElementById("successMsg");
 
-            const successMsg =
-                document.getElementById('successMsg');
+    errorMsg.style.display = "none";
+    successMsg.style.display = "none";
 
-            errorMsg.style.display = 'none';
-            successMsg.style.display = 'none';
+    if (!email || !password) {
 
-            if (!email || !password) {
+        errorMsg.innerText =
+            "Please enter email and password";
 
-                showError('Please fill all fields');
+        errorMsg.style.display = "block";
 
-                return;
+        return;
+    }
+
+    try {
+
+        btn.classList.add("loading");
+
+        const response = await fetch(
+            `${API_BASE}/api/users/login`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
             }
+        );
 
-            btn.textContent = 'Signing In...';
+        const result = await response.json();
 
-            btn.classList.add('loading');
+        console.log(result);
 
-            try {
+        if (response.ok) {
 
-                const res = await fetch(`${API_BASE}/api/users/login`, {
+      
+            localStorage.setItem(
+                "pmt_token",
+                result.data.token
+            );
 
-                    method: 'POST',
+     
+            localStorage.setItem(
+                "userId",
+                result.data.userId
+            );
 
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+            successMsg.innerText =
+                "Login successful";
 
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    })
+            successMsg.style.display = "block";
 
-                });
+            setTimeout(() => {
 
-                if (!res.ok) {
+                window.location.href =
+                    "index.html#features";
 
-                    throw new Error();
-                }
+            }, 1000);
 
-                const token = await res.text();
+        } else {
 
-                localStorage.setItem('pmt_token', token);
+            errorMsg.innerText =
+                result.message || "Invalid email or password";
 
-                localStorage.setItem('pmt_user', JSON.stringify({
-                    email: email
-                }));
-
-                successMsg.textContent =
-                    'Login successful! Redirecting...';
-
-                successMsg.style.display = 'block';
-
-                setTimeout(() => {
-
-                    window.location.href = 'dashboard.html';
-
-                }, 1000);
-
-            }
-            catch (err) {
-
-                showError(
-                    'Invalid email or password'
-                );
-            }
-            finally {
-
-                btn.textContent = 'Sign In →';
-
-                btn.classList.remove('loading');
-            }
+            errorMsg.style.display = "block";
         }
 
-        function showError(msg) {
+    }
+    catch (error) {
 
-            const el =
-                document.getElementById('errorMsg');
+        console.log(error);
 
-            el.textContent = msg;
+        errorMsg.innerText =
+            "Server error";
 
-            el.style.display = 'block';
-        }
+        errorMsg.style.display = "block";
+    }
+    finally {
 
-        // ENTER KEY SUPPORT
+        btn.classList.remove("loading");
+    }
+}
 
-        document.addEventListener('keydown', e => {
-
-            if (e.key === 'Enter') {
-
-                handleLogin();
-            }
-        });
-
-    </script>
-
+</script>
 </body>
 
 </html>
