@@ -158,6 +158,13 @@
 
         const API_BASE = "http://localhost:8081";
 
+        const token = localStorage.getItem("pmt_token");
+
+if (!token) {
+
+    window.location.href = "login.html";
+}
+
         async function calculateBudget() {
 
             const tripId =

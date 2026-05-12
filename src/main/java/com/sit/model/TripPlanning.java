@@ -4,17 +4,21 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.sit.enums.DestinationType;
 import com.sit.enums.TripStatus;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "trips")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -34,11 +38,18 @@ public class TripPlanning {
     // BASIC INFO
     private String tripName;
     private String description;
+    
+    private String location;
+
+    private int days;
+
+    private DestinationType type;
 
     private LocalDate startDate;
     private LocalDate endDate;
 
     private double totalBudget;
+     
 
     @Enumerated(EnumType.STRING)
     private TripStatus status;

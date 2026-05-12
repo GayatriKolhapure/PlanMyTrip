@@ -457,126 +457,127 @@
 
     </div>
 
-<script>
+    <script>
 
-const API_BASE = "http://localhost:8081";
+        const API_BASE = "http://localhost:8081";
 
-// REMOVE OLD INVALID TOKEN
-const existingToken = localStorage.getItem("pmt_token");
+        // REMOVE OLD INVALID TOKEN
+        const existingToken = localStorage.getItem("pmt_token");
 
-if (
-    existingToken === "undefined" ||
-    existingToken === "null"
-) {
-    localStorage.removeItem("pmt_token");
-    localStorage.removeItem("userId");
-}
-
-async function handleLogin() {
-
-    const email =
-        document.getElementById("email").value.trim();
-
-    const password =
-        document.getElementById("password").value;
-
-    const btn =
-        document.getElementById("loginBtn");
-
-    const errorMsg =
-        document.getElementById("errorMsg");
-
-    const successMsg =
-        document.getElementById("successMsg");
-
-    errorMsg.style.display = "none";
-    successMsg.style.display = "none";
-
-    if (!email || !password) {
-
-        errorMsg.innerText =
-            "Please enter email and password";
-
-        errorMsg.style.display = "block";
-
-        return;
-    }
-
-    try {
-
-        btn.classList.add("loading");
-
-        const response = await fetch(
-            `${API_BASE}/api/users/login`,
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    email: email,
-                    password: password
-                })
-            }
-        );
-
-        const result = await response.json();
-
-        console.log(result);
-
-        if (response.ok) {
-
-      
-            localStorage.setItem(
-                "pmt_token",
-                result.data.token
-            );
-
-     
-            localStorage.setItem(
-                "userId",
-                result.data.userId
-            );
-
-            successMsg.innerText =
-                "Login successful";
-
-            successMsg.style.display = "block";
-
-            setTimeout(() => {
-
-                window.location.href =
-                    "index.html#features";
-
-            }, 1000);
-
-        } else {
-
-            errorMsg.innerText =
-                result.message || "Invalid email or password";
-
-            errorMsg.style.display = "block";
+        if (
+            existingToken === "undefined" ||
+            existingToken === "null"
+         ) 
+         {
+            localStorage.removeItem("pmt_token");
+            localStorage.removeItem("id");
         }
 
-    }
-    catch (error) {
+        async function handleLogin() {
 
-        console.log(error);
+            const email =
+                document.getElementById("email").value.trim();
 
-        errorMsg.innerText =
-            "Server error";
+            const password =
+                document.getElementById("password").value;
 
-        errorMsg.style.display = "block";
-    }
-    finally {
+            const btn =
+                document.getElementById("loginBtn");
 
-        btn.classList.remove("loading");
-    }
-}
+            const errorMsg =
+                document.getElementById("errorMsg");
 
-</script>
+            const successMsg =
+                document.getElementById("successMsg");
+
+            errorMsg.style.display = "none";
+            successMsg.style.display = "none";
+
+            if (!email || !password) {
+
+                errorMsg.innerText =
+                    "Please enter email and password";
+
+                errorMsg.style.display = "block";
+
+                return;
+            }
+
+            try {
+
+                btn.classList.add("loading");
+
+                const response = await fetch(
+                    `${API_BASE}/api/users/login`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            email: email,
+                            password: password
+                        })
+                    }
+                );
+
+                const result = await response.json();
+
+                console.log(result);
+
+                if (response.ok) {
+
+
+                    localStorage.setItem(
+                        "pmt_token",
+                        result.data.token
+                    );
+
+
+                    localStorage.setItem(
+                        "userId",
+                        result.data.id
+                    );
+
+                    successMsg.innerText =
+                        "Login successful";
+
+                    successMsg.style.display = "block";
+
+                    setTimeout(() => {
+
+                        window.location.href =
+                            "index.html#features";
+
+                    }, 1000);
+
+                } else {
+
+                    errorMsg.innerText =
+                        result.message || "Invalid email or password";
+
+                    errorMsg.style.display = "block";
+                }
+
+            }
+            catch (error) {
+
+                console.log(error);
+
+                errorMsg.innerText =
+                    "Server error";
+
+                errorMsg.style.display = "block";
+            }
+            finally {
+
+                btn.classList.remove("loading");
+            }
+        }
+
+    </script>
 </body>
 
 </html>

@@ -98,11 +98,28 @@ public class TripPlanningService {
         // 5. SAVE TRIP
         TripPlanning trip = new TripPlanning();
 
-        trip.setUser(user); // 🔥 MOST IMPORTANT
+        trip.setUser(user);
+
         trip.setTripName(request.getLocation() + " Trip");
+
         trip.setCreatedDate(LocalDate.now());
+
+        trip.setLocation(request.getLocation());
+
+        trip.setDays(request.getDays());
+
+        trip.setType(request.getType());
+
+        trip.setStartDate(request.getStartDate());
+
+        trip.setEndDate(request.getEndDate());
+
+        trip.setTotalBudget(request.getTotalBudget());
+
         trip.setDestinations(places);
+
         trip.setHotels(hotels);
+
         trip.setRestaurants(restaurants);
 
         try {

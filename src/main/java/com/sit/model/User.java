@@ -60,6 +60,7 @@ public class User {
     
     @Enumerated(EnumType.STRING)
     private SecurityQuestion securityQuestion;
+    
     private String securityAnswer;
 
 }

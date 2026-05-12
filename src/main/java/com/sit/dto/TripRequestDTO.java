@@ -1,5 +1,7 @@
 package com.sit.dto;
 
+import java.time.LocalDate;
+
 import com.sit.enums.DestinationType;
 
 import lombok.Getter;
@@ -14,6 +16,11 @@ public class TripRequestDTO {
     private String location;
     private int days;
     private DestinationType type;
+    private LocalDate startDate;
+    private LocalDate endDate;
+
+    private double totalBudget;
+     
 
    
 }
