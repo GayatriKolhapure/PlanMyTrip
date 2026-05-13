@@ -5,6 +5,7 @@ import com.sit.model.TripPlanning;
 import com.sit.service.TripPlanningService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,11 @@ public class TripPlanningController {
     @GetMapping("/{id}")
     public TripPlanning getById(@PathVariable Long id) {
         return service.getTrip(id);
+    }
+    
+    @GetMapping("userTrip/{userId}")
+    public ResponseEntity<?> getTripsByUser(@PathVariable Long userId) {
+    		return ResponseEntity.ok(service.getTripsByUser(userId));
     }
 
     @DeleteMapping("/{id}")

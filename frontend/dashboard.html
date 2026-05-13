@@ -306,7 +306,6 @@
             cursor: pointer;
             margin-bottom: 3rem;
         }
-
     </style>
 </head>
 
@@ -327,7 +326,7 @@
         <a href="index.html" class="back-home">
             Back to Home
         </a>
-            
+
         <button class="logout-btn" onclick="logout()">
             Logout
         </button>
@@ -462,8 +461,10 @@
 
             try {
 
+                const userId = localStorage.getItem("userId");
+
                 const response = await fetch(
-                    `${API_BASE}/api/trips`,
+                    `${API_BASE}/api/trips/userTrip/${userId}`,
                     {
                         headers: {
                             "Authorization": `Bearer ${token}`
@@ -633,9 +634,8 @@
             console.log(bodyData);
 
             try {
-
                 const response = await fetch(
-                    "http://localhost:8081/api/trips/plan",
+                    `${API_BASE}/api/trips/plan`,
                     {
                         method: "POST",
 
@@ -647,6 +647,7 @@
                         body: JSON.stringify(bodyData)
                     }
                 );
+
 
                 const data = await response.json();
 

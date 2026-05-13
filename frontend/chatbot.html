@@ -1,0 +1,46 @@
+<input type="text" id="msg">
+
+<button onclick="sendMessage()">
+    Send
+</button>
+
+<div id="chatBox"></div>
+
+<script>
+
+async function sendMessage(){
+
+    const msg =
+        document.getElementById("msg").value;
+
+    const response = await fetch(
+        "http://localhost:8081/api/chat",
+        {
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+                message:msg
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    console.log(data);
+
+    const text =
+    data.candidates[0]
+    .content.parts[0].text;
+
+    document.getElementById("chatBox")
+    .innerHTML += `
+        <p><b>You:</b> ${msg}</p>
+        <p><b>AI:</b> ${text}</p>
+    `;
+}
+
+</script>

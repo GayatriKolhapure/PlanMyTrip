@@ -156,121 +156,93 @@
 
     <script>
 
-        const API_BASE = "http://localhost:8081";
+const API_BASE = "http://localhost:8081";
 
-        const token = localStorage.getItem("pmt_token");
+const token = localStorage.getItem("pmt_token");
 
-if (!token) {
+async function calculateBudget() {
 
-    window.location.href = "login.html";
-}
+    const tripId =
+        document.getElementById("tripId").value;
 
-        async function calculateBudget() {
+    const totalBudget =
+        document.getElementById("totalBudget").value;
 
-            const tripId =
-                document.getElementById("tripId").value;
+    try {
 
-            const totalBudget =
-                document.getElementById("totalBudget").value;
+        const response = await fetch(
+            `${API_BASE}/budget/calculate`,
+            {
+                method: "POST",
 
-            if (!tripId || !totalBudget) {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
 
-                alert("Please fill all fields");
-
-                return;
+                body: JSON.stringify({
+                    tripId: Number(tripId),
+                    totalBudget: Number(totalBudget)
+                })
             }
+        );
 
-            try {
+        const data = await response.json();
 
-                const response = await fetch(
-                    `${API_BASE}/budget/calculate`,
-                    {
-                        method: "POST",
+        if (!response.ok) {
 
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
+            alert(data.message);
 
-                        body: JSON.stringify({
-                            tripId: Number(tripId),
-                            totalBudget: Number(totalBudget)
-                        })
-                    }
-                );
-
-                const text = await response.text();
-
-                console.log(text);
-
-                if (!response.ok) {
-
-                    alert(text);
-                    return;
-                }
-
-                const data = JSON.parse(text);
-
-                showResult(data);
-
-            }
-            catch (error) {
-
-                console.log(error);
-
-                alert("Server Error");
-            }
-
-            function showResult(data) {
-
-                document
-                    .getElementById("resultBox")
-                    .style.display = "block";
-
-                document
-                    .getElementById("rTotal")
-                    .innerText = data.totalBudget;
-
-                document
-                    .getElementById("rEstimated")
-                    .innerText = data.estimatedCost;
-
-                document
-                    .getElementById("rRemaining")
-                    .innerText = data.remainingBudget;
-
-                document
-                    .getElementById("rStatus")
-                    .innerText = data.status;
-
-                document
-                    .getElementById("rSuggestion")
-                    .innerText = data.suggestion;
-
-                const status =
-                    document.getElementById("rStatus");
-
-                status.classList.remove(
-                    "green",
-                    "yellow",
-                    "red"
-                );
-
-                if (data.status === "UNDER_BUDGET") {
-
-                    status.classList.add("green");
-                }
-                else if (data.status === "WITHIN_BUDGET") {
-
-                    status.classList.add("yellow");
-                }
-                else {
-
-                    status.classList.add("red");
-                }
-            }
+            return;
         }
 
-    </script>
+        document.getElementById("resultBox").style.display = "block";
+
+        document.getElementById("rTotal").innerText =
+            data.totalBudget;
+
+        document.getElementById("rEstimated").innerText =
+            data.estimatedCost;
+
+        document.getElementById("rRemaining").innerText =
+            data.remainingBudget;
+
+        document.getElementById("rStatus").innerText =
+            data.status;
+
+        document.getElementById("rSuggestion").innerText =
+            data.suggestion;
+
+        const statusElement =
+            document.getElementById("rStatus");
+
+        statusElement.className = "";
+
+        if(data.status === "Excellent"){
+
+            statusElement.classList.add("green");
+        }
+
+        else if(data.status === "Average"){
+
+            statusElement.classList.add("yellow");
+        }
+
+        else{
+
+            statusElement.classList.add("red");
+        }
+
+    }
+    catch(error) {
+
+        console.log(error);
+
+        alert("Something went wrong");
+    }
+}
+
+</script>
 
 </body>
 

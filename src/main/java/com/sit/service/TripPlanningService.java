@@ -139,7 +139,12 @@ public class TripPlanningService {
 
         return response;
     }
+    
+    public List<TripPlanning> getTripsByUser(Long userId) {
 
+        return tripRepo.findByUserId(userId);
+    }
+    
     public List<TripPlanning> getAllTrips() {
         return tripRepo.findAll();
     }
